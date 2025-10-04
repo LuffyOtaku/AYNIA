@@ -1,0 +1,32 @@
+services:
+  aynia-db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aynia_db}
+      POSTGRES_USER: ${POSTGRES_USER:-aynia_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aynia_user} -d ${POSTGRES_DB:-aynia_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  aynia-dashboard:
+    build: ./frontend/dashboard
+    restart: unless-stopped
+    environment:
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-3000}
+    ports:
+      - "${DASHBOARD_PORT:-3000}:3000"
+    depends_on:
+      aynia-db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
