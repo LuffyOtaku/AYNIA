@@ -6,9 +6,16 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
-    "test": "bun test",
-    "test:watch": "bun test --watch",
-    "test:coverage": "bun test --coverage"
+    "test": "NODE_ENV=test bun test",
+    "test:watch": "NODE_ENV=test bun test --watch",
+    "test:coverage": "NODE_ENV=test bun test --coverage",
+    "db:check": "bun run scripts/check-db.ts",
+    "db:setup": "bun run scripts/setup-db.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:migrate:all": "bun run scripts/migrate-all.ts",
+    "db:push:all": "bun run scripts/push-all.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
