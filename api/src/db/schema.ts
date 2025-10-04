@@ -1,0 +1,223 @@
+import { integer, pgTable, varchar, text, boolean, timestamp, date, json } from "drizzle-orm/pg-core";
+
+export const animeTable = pgTable("anime", {
+  id: integer().primaryKey(),
+  titleRomaji: varchar({ length: 500 }),
+  titleEnglish: varchar({ length: 500 }),
+  titleNative: varchar({ length: 500 }),
+  description: text(),
+  format: varchar({ length: 50 }),
+  status: varchar({ length: 50 }),
+  episodes: integer(),
+  duration: integer(),
+  season: varchar({ length: 20 }),
+  seasonYear: integer(),
+  startDateYear: integer(),
+  startDateMonth: integer(),
+  startDateDay: integer(),
+  endDateYear: integer(),
+  endDateMonth: integer(),
+  endDateDay: integer(),
+  coverImageExtraLarge: varchar({ length: 500 }),
+  coverImageLarge: varchar({ length: 500 }),
+  coverImageMedium: varchar({ length: 500 }),
+  coverImageColor: varchar({ length: 20 }),
+  bannerImage: varchar({ length: 500 }),
+  genres: json().$type<string[]>(),
+  averageScore: integer(),
+  popularity: integer(),
+  favourites: integer(),
+  isAdult: boolean().default(false),
+  updatedAt: timestamp(),
+  createdAt: timestamp().defaultNow(),
+  lastScrapedAt: timestamp().defaultNow(),
+});
+
+export const studioTable = pgTable("studios", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const animeStudioTable = pgTable("anime_studios", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  animeId: integer().notNull().references(() => animeTable.id, { onDelete: "cascade" }),
+  studioId: integer().notNull().references(() => studioTable.id, { onDelete: "cascade" }),
+  isMain: boolean().default(true),
+});
+
+export const usersTable = pgTable("users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  username: varchar({ length: 100 }).notNull().unique(),
+  email: varchar({ length: 255 }).notNull().unique(),
+  passwordHash: varchar({ length: 255 }).notNull(),
+  displayName: varchar({ length: 255 }),
+  avatar: varchar({ length: 500 }),
+  isAdmin: boolean().default(false),
+  isActive: boolean().default(true),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+  lastLoginAt: timestamp(),
+});
+
+export const userAnimeListTable = pgTable("user_anime_list", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  animeId: integer().notNull().references(() => animeTable.id, { onDelete: "cascade" }),
+  status: varchar({ length: 50 }).notNull(),
+  score: integer(),
+  progress: integer().default(0),
+  rewatchCount: integer().default(0),
+  notes: text(),
+  startedAt: date(),
+  completedAt: date(),
+  isFavorite: boolean().default(false),
+  isPrivate: boolean().default(false),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const userAnimeRatingTable = pgTable("user_anime_rating", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  animeId: integer().notNull().references(() => animeTable.id, { onDelete: "cascade" }),
+  rating: integer().notNull(),
+  review: text(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const userPreferencesTable = pgTable("user_preferences", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().unique().references(() => usersTable.id, { onDelete: "cascade" }),
+  theme: varchar({ length: 50 }).default("dark"),
+  language: varchar({ length: 10 }).default("en"),
+  autoplay: boolean().default(true),
+  subtitleLanguage: varchar({ length: 10 }).default("en"),
+  preferredQuality: varchar({ length: 20 }).default("1080p"),
+  notificationsEnabled: boolean().default(true),
+  emailNotifications: boolean().default(true),
+  settings: json().$type<Record<string, any>>(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const mediaLibraryTable = pgTable("media_library", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  animeId: integer().notNull().references(() => animeTable.id, { onDelete: "cascade" }),
+  filePath: varchar({ length: 1000 }).notNull(),
+  fileName: varchar({ length: 500 }).notNull(),
+  fileSize: integer(),
+  quality: varchar({ length: 50 }),
+  resolution: varchar({ length: 20 }),
+  codec: varchar({ length: 50 }),
+  subtitles: json().$type<string[]>(),
+  audioTracks: json().$type<string[]>(),
+  episodeNumber: integer(),
+  duration: integer(),
+  checksum: varchar({ length: 100 }),
+  isAvailable: boolean().default(true),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const waifuCharacterTable = pgTable("waifu_characters", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  name: varchar({ length: 255 }).notNull(),
+  description: text(),
+  personality: text(),
+  avatar: varchar({ length: 500 }),
+  voiceModel: varchar({ length: 255 }),
+  llmModel: varchar({ length: 255 }),
+  systemPrompt: text(),
+  temperature: integer(),
+  maxTokens: integer(),
+  isActive: boolean().default(true),
+  settings: json().$type<Record<string, any>>(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const waifuChatHistoryTable = pgTable("waifu_chat_history", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  characterId: integer().notNull().references(() => waifuCharacterTable.id, { onDelete: "cascade" }),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  role: varchar({ length: 20 }).notNull(),
+  content: text().notNull(),
+  imageUrl: varchar({ length: 500 }),
+  audioUrl: varchar({ length: 500 }),
+  metadata: json().$type<Record<string, any>>(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const mangaTable = pgTable("manga", {
+  id: integer().primaryKey(),
+  titleRomaji: varchar({ length: 500 }),
+  titleEnglish: varchar({ length: 500 }),
+  titleNative: varchar({ length: 500 }),
+  description: text(),
+  format: varchar({ length: 50 }),
+  status: varchar({ length: 50 }),
+  chapters: integer(),
+  volumes: integer(),
+  startDateYear: integer(),
+  startDateMonth: integer(),
+  startDateDay: integer(),
+  endDateYear: integer(),
+  endDateMonth: integer(),
+  endDateDay: integer(),
+  coverImageExtraLarge: varchar({ length: 500 }),
+  coverImageLarge: varchar({ length: 500 }),
+  coverImageMedium: varchar({ length: 500 }),
+  coverImageColor: varchar({ length: 20 }),
+  bannerImage: varchar({ length: 500 }),
+  genres: json().$type<string[]>(),
+  averageScore: integer(),
+  popularity: integer(),
+  favourites: integer(),
+  isAdult: boolean().default(false),
+  updatedAt: timestamp(),
+  createdAt: timestamp().defaultNow(),
+  lastScrapedAt: timestamp().defaultNow(),
+});
+
+export const userMangaListTable = pgTable("user_manga_list", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  mangaId: integer().notNull().references(() => mangaTable.id, { onDelete: "cascade" }),
+  status: varchar({ length: 50 }).notNull(),
+  score: integer(),
+  chaptersRead: integer().default(0),
+  volumesRead: integer().default(0),
+  rereadCount: integer().default(0),
+  notes: text(),
+  startedAt: date(),
+  completedAt: date(),
+  isFavorite: boolean().default(false),
+  isPrivate: boolean().default(false),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export const sessionTable = pgTable("sessions", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  token: varchar({ length: 500 }).notNull().unique(),
+  ipAddress: varchar({ length: 50 }),
+  userAgent: text(),
+  expiresAt: timestamp().notNull(),
+  createdAt: timestamp().defaultNow(),
+});
+
+export const activityLogTable = pgTable("activity_log", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer().references(() => usersTable.id, { onDelete: "set null" }),
+  action: varchar({ length: 100 }).notNull(),
+  entityType: varchar({ length: 50 }),
+  entityId: integer(),
+  details: json().$type<Record<string, any>>(),
+  ipAddress: varchar({ length: 50 }),
+  createdAt: timestamp().defaultNow(),
+});
