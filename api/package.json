@@ -1,8 +1,15 @@
 {
   "name": "api",
-  "module": "index.ts",
+  "module": "./src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.15.5",
