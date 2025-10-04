@@ -45,13 +45,22 @@ You can install AYNIA using Docker Compose. Make sure you have Docker and Docker
    cp .env.example .env
    ```
 4. Edit the `.env` file to configure your settings.
+   - Set `NODE_ENV=development` for development (creates test database)
+   - Set `NODE_ENV=production` for production (main database only)
 5. Start the services:
    ```bash
    docker compose up -d
    ```
-6. Access the web interface at `http://localhost:3000` (or the port you specified in the `.env` file).
-7. Follow the on-screen instructions to complete the setup.
-8. Enjoy your self-hosted anime toolkit!
+6. Setup the database schema:
+   ```bash
+   cd api
+   bun run db:push:all
+   ```
+7. Access the web interface at `http://localhost:3000` (or the port you specified in the `.env` file).
+8. Follow the on-screen instructions to complete the setup.
+9. Enjoy your self-hosted anime toolkit!
+
+For detailed database setup and testing information, see [api/DATABASE_SETUP.md](api/DATABASE_SETUP.md).
 
 ## Contributing
 Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
