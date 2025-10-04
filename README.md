@@ -1,16 +1,8 @@
 # AYNIA (All you need is Anime) - Anime Toolkit
 
-`IN DEVELOPMENT, NOT READY FOR PRODUCTION USE`
+`IN DEVELOPMENT, NOT READY FOR USE`
 
-ROADMAP:
-- [ ] Dashboard
-- [ ] Database
-- [ ] List
-- [ ] Media Server
-- [ ] Manga Reader
-- [ ] Waifu Chat
-- [ ] Downloader
-- [ ] Translator
+Roadmap: [ROADMAP.md](ROADMAP.md) | Quickstart: [QUICKSTART.md](QUICKSTART.md)
 
 AYNIA is an open-source anime toolkit that provides all the essential tools for otakus who want control in their hands.
 
