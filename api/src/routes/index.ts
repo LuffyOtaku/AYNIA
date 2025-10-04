@@ -1,5 +1,6 @@
 import { Router } from '../core/router';
 import { setupUserRoutes } from './user.routes';
+import { setupAnimeRoutes } from './anime.routes';
 import { ResponseBuilder } from '../utils/response';
 
 export function setupRoutes(): Router {
@@ -8,9 +9,10 @@ export function setupRoutes(): Router {
   router.get('/', () => {
     return ResponseBuilder.success({
       message: 'AYNIA API',
-      version: '0.0.1',
+      version: '0.0.2',
       endpoints: {
-        users: '/api/users',
+        users: '/api/user',
+        anime: '/api/anime'
       }
     });
   });
@@ -20,6 +22,7 @@ export function setupRoutes(): Router {
   });
 
   setupUserRoutes(router);
+  setupAnimeRoutes(router);
 
   return router;
 }
